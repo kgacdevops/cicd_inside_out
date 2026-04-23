@@ -1,0 +1,58 @@
+name: Build InsideOut Infra
+run-name: Build InsideOut Infra
+on:
+  workflow_call:
+    inputs:
+      ACTION:
+        description: "Action"
+        type: string
+      CLOUD_PROVIDER:
+        description: "Cloud Provider"
+        type: string
+      REGION:
+        description: "Region (Location)"
+        type: string
+
+jobs:
+  build_website:
+    name: Build Website
+    runs-on: [ubuntu-latest]
+    environment: ${{ inputs.CLOUD_PROVIDER }}
+    env:
+      GH_APP_ID: ${{ secrets.GH_APP_ID }}
+      GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
+      GH_INSTALLATION_ID: ${{ secrets.GH_INSTALLATION_ID }}
+      OWNER_NAME: kgacdevops
+    steps:
+    - name: Generate GH Token
+      uses: kgacdevops/github_automation_scripts/.github/actions/generateGithubToken@main
+    
+    - name: Checkout Terraform Repository
+      uses: actions/checkout@v4
+      with:
+        repository: kgacdevops/iac_terraform
+        ref: main
+        path: iac
+
+    - name: Configure AWS credentials (OIDC)
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.GH_AWS_IAM_ROLE }}
+        aws-region: ${{ inputs.REGION }}
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ vars.TERRAFORM_VERSION }}
+    
+    - name: Run Terraform
+      shell: bash
+      run: |
+        cd iac/insideout_infra/${{ inputs.cloudProvider }}
+        terraform init
+        terraform plan
+        if [[ "${{ inputs.ACTION }}" == "apply" ]]; then
+          terraform apply -auto-approve
+        elif [[ "${{ inputs.ACTION }}" == "destroy" ]]; then
+          terraform destroy -auto-approve
+        fi
