@@ -44,6 +44,12 @@ jobs:
       uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: ${{ vars.TERRAFORM_VERSION }}
+
+    - name: Setup TF Vars
+      run: |
+        cd iac/insideout_infra/${{ inputs.CLOUD_PROVIDER }}
+        sed 's/{REGION}/${{ inputs.REGION }}/g' terraform.tfvars
+        cat terraform.tfvars
     
     - name: Run Terraform
       shell: bash
