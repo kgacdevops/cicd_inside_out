@@ -48,7 +48,7 @@ jobs:
     - name: Run Terraform
       shell: bash
       run: |
-        cd iac/insideout_infra/${{ inputs.cloudProvider }}
+        cd iac/insideout_infra/${{ inputs.CLOUD_PROVIDER }}
         terraform init
         terraform plan
         if [[ "${{ inputs.ACTION }}" == "apply" ]]; then
