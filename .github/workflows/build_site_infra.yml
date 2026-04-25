@@ -88,8 +88,8 @@ jobs:
       run: |
         api_endpoint=$(cat ${{ github.workspace }}/iac/insideout_infra/aws/backend_api_endpoint.txt)
         echo "$api_endpoint"
-        
+
         cd ${{ github.workspace }}/project/frontend
-        sed -i 's/{BACKEND_API_ENDPOINT}/$api_endpoint/g' index.html
+        sed -i "s/{BACKEND_API_ENDPOINT}/$api_endpoint/g" index.html
         cat index.html
         aws s3 sync . s3://${{ vars.SITE_DOMAIN }} --delete
