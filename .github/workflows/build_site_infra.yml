@@ -65,6 +65,7 @@ jobs:
         cd iac/insideout_infra/${{ inputs.CLOUD_PROVIDER }}
         sed -i 's/{REGION}/${{ inputs.REGION }}/g' terraform.tfvars
         sed -i 's/{LAMBDA_PY_VERSION}/${{ vars.LAMBDA_PY_VERSION }}/g' terraform.tfvars
+        sed -i 's/{BUCKET_NAME}/${{ vars.SITE_DOMAIN }}/g' terraform.tfvars
         cat terraform.tfvars
 
         sed -i 's/{REGION}/${{ inputs.REGION }}/g' backend.tf
@@ -82,3 +83,8 @@ jobs:
         elif [[ "${{ inputs.ACTION }}" == "destroy" ]]; then
           terraform destroy -auto-approve
         fi
+    
+    - name: Sync Frontend Code
+      run: |
+        cd ${{ github.workspace }}/project/frontend
+        aws s3 sync . s3://${{ vars.SITE_DOMAIN }} --delete
