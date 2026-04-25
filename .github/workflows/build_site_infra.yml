@@ -27,12 +27,26 @@ jobs:
     - name: Generate GH Token
       uses: kgacdevops/github_automation_scripts/.github/actions/generateGithubToken@main
     
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+      with:
+        repository: inside_out
+        ref: main
+        path: project
+    
     - name: Checkout Terraform Repository
       uses: actions/checkout@v4
       with:
         repository: kgacdevops/iac_terraform
         ref: main
         path: iac
+    
+    - name: Package Lambda Code
+      shell: bash
+      run: |
+        cd project/lambda
+        zip ${github.workspace}/iac/insideout_infra/aws/backend_api.zip query_verse.py
+        ls -l ${github.workspace}/iac/insideout_infra/aws
 
     - name: Configure AWS credentials (OIDC)
       uses: aws-actions/configure-aws-credentials@v4
