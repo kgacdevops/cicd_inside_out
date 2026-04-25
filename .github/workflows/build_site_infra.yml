@@ -45,8 +45,8 @@ jobs:
       shell: bash
       run: |
         cd project/lambda
-        zip ${github.workspace}/iac/insideout_infra/aws/backend_api.zip query_verse.py
-        ls -l ${github.workspace}/iac/insideout_infra/aws
+        zip ${{ github.workspace }}/iac/insideout_infra/aws/backend_api.zip query_verse.py
+        ls -l ${{ github.workspace }}/iac/insideout_infra/aws
 
     - name: Configure AWS credentials (OIDC)
       uses: aws-actions/configure-aws-credentials@v4
