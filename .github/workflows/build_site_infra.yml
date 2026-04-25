@@ -30,7 +30,7 @@ jobs:
     - name: Checkout Source Code
       uses: actions/checkout@v4
       with:
-        repository: inside_out
+        repository: kgacdevops/inside_out
         ref: main
         path: project
     
