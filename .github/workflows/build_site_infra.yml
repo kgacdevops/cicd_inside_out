@@ -112,5 +112,4 @@ jobs:
       uses: actions/github-script@v9
       with:
         script: |
-          core.notice("Website URL: ${{ steps.url.outputs.api_endpoint }}")
-          core.notice("API Endpoint: ${{ steps.url.outputs.website_endpoint }}")
+          core.notice("Website URL: https://${{ steps.url.outputs.website_endpoint }}")
