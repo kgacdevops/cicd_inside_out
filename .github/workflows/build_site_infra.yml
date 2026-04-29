@@ -85,17 +85,30 @@ jobs:
           terraform destroy -auto-approve
         fi
     
-    - name: Sync Frontend Code
+    - name: Get Endpoints
+      id: url
       if: inputs.ACTION == 'apply'
       run: |
         api_endpoint=$(cat ${{ github.workspace }}/iac/insideout_infra/aws/backend_api_endpoint.txt)
+        website_endpoint=$(cat ${{ github.workspace }}/iac/insideout_infra/aws/website_endpoint.txt)
+        echo "api_endpoint=$api_endpoint" >> $GITHUB_OUTPUT
+        echo "website_endpoint=$website_endpoint" >> $GITHUB_OUTPUT
+    
+    - name: Post Provision
+      if: inputs.ACTION == 'apply'
+      run: |
+        echo "Sync S3.."
         cd ${{ github.workspace }}/project/frontend
-        sed -i "s|{BACKEND_API_ENDPOINT}|$api_endpoint|g" index.html
+        sed -i "s|{BACKEND_API_ENDPOINT}|${{ steps.url.outputs.api_endpoint }}|g" index.html
         aws s3 sync . s3://${{ vars.SITE_DOMAIN }} --delete
 
-    - name: Load Dynamo DB Items
-      if: inputs.ACTION == 'apply'
-      env:
-        LOAD_ITEMS_LAMBDA_FUNCTION: "${{ vars.PREFIX }}-load-db-items"
-      run: |
+        echo "Loading DynamoDB Table.."
         aws lambda invoke --function-name ${{ env.LOAD_ITEMS_LAMBDA_FUNCTION }} --cli-binary-format raw-in-base64-out response.json
+    
+    - name: Display Endpoints
+      if: inputs.ACTION == 'apply'
+      uses: actions/github-script@v9
+      with:
+        script: |
+          core.notice("Website URL: ${{ steps.url.outputs.api_endpoint }}")
+          core.notice("API Endpoint: ${{ steps.url.outputs.api_endpoint }}")
