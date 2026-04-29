@@ -66,6 +66,7 @@ jobs:
         sed -i 's/{REGION}/${{ inputs.REGION }}/g' terraform.tfvars
         sed -i 's/{LAMBDA_PY_VERSION}/${{ vars.LAMBDA_PY_VERSION }}/g' terraform.tfvars
         sed -i 's/{BUCKET_NAME}/${{ vars.SITE_DOMAIN }}/g' terraform.tfvars
+        sed -i 's/{PREFIX}/${{ vars.PREFIX }}/g' terraform.tfvars
         cat terraform.tfvars
 
         sed -i 's/{REGION}/${{ inputs.REGION }}/g' backend.tf
@@ -91,3 +92,10 @@ jobs:
         cd ${{ github.workspace }}/project/frontend
         sed -i "s|{BACKEND_API_ENDPOINT}|$api_endpoint|g" index.html
         aws s3 sync . s3://${{ vars.SITE_DOMAIN }} --delete
+
+    - name: Load Dynamo DB Items
+      if: inputs.ACTION == 'apply'
+      env:
+        LOAD_ITEMS_LAMBDA_FUNCTION: "${{ vars.PREFIX }}-load-db-items"
+      run: |
+        aws lambda invoke --function-name ${{ env.LOAD_ITEMS_LAMBDA_FUNCTION }} --cli-binary-format raw-in-base64-out response.json
