@@ -96,6 +96,8 @@ jobs:
     
     - name: Post Provision
       if: inputs.ACTION == 'apply'
+      env:
+        LOAD_ITEMS_LAMBDA_FUNCTION: "${{ vars.PREFIX }}-load-db-items"
       run: |
         echo "Sync S3.."
         cd ${{ github.workspace }}/project/frontend
