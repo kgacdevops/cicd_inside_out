@@ -112,4 +112,4 @@ jobs:
       uses: actions/github-script@v9
       with:
         script: |
-          core.notice("Website URL: https://${{ steps.url.outputs.website_endpoint }}")
+          core.notice("Website URL: http://${{ steps.url.outputs.website_endpoint }}")
