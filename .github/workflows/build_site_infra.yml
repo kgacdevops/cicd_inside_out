@@ -28,14 +28,14 @@ jobs:
       uses: kgacdevops/github_automation_scripts/.github/actions/generateGithubToken@main
     
     - name: Checkout Source Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: kgacdevops/inside_out
         ref: main
         path: project
     
     - name: Checkout Terraform Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: kgacdevops/iac_terraform
         ref: main
@@ -50,13 +50,13 @@ jobs:
         ls -l ${{ github.workspace }}/iac/insideout_infra/aws
 
     - name: Configure AWS credentials (OIDC)
-      uses: aws-actions/configure-aws-credentials@v4
+      uses: aws-actions/configure-aws-credentials@v6.1.0
       with:
         role-to-assume: ${{ secrets.GH_AWS_IAM_ROLE }}
         aws-region: ${{ inputs.REGION }}
     
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_version: ${{ vars.TERRAFORM_VERSION }}
 
@@ -113,4 +113,4 @@ jobs:
       with:
         script: |
           core.notice("Website URL: ${{ steps.url.outputs.api_endpoint }}")
-          core.notice("API Endpoint: ${{ steps.url.outputs.api_endpoint }}")
+          core.notice("API Endpoint: ${{ steps.url.outputs.website_endpoint }}")
